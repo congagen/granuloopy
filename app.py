@@ -4,6 +4,9 @@ import wave
 import array
 import struct
 
+PART_COUNT = 1000
+LOOP_COUNT = 6
+
 
 def slice(infile, frame_rate, start_ms, end_ms):
     fpms   = int(frame_rate / 1000) # frames per ms
@@ -17,9 +20,8 @@ def slice(infile, frame_rate, start_ms, end_ms):
     return infile.readframes(length)
 
 
-def mix_file(order_path, out_dir="temp/", part_count = 100, write_slice = True):
+def split_wav(order_path, out_dir="temp/", part_count=1000, loop_count=6):
     w = wave.open(order_path, 'r')
-    composite_audio = array.array('h')
 
     frame_count = w.getnframes()
     frame_rate  = w.getframerate()
@@ -29,33 +31,45 @@ def mix_file(order_path, out_dir="temp/", part_count = 100, write_slice = True):
     samp_width  = w.getsampwidth()
 
     window_size_fr = int(frame_count / part_count)
-    window_size_ms = int(window_size_fr / frame_rate) * 1000
+    window_size_ms = int((window_size_fr / frame_rate) * 1000)
+
+    path_list = []
 
     for p in range(part_count):
-        start = int(p * window_size_ms)
-        stop  = int(start + window_size_ms)
-        sl     = slice(w, frame_rate, start, stop)
+        print("Yes: " + str(p))
+        for l in range(loop_count):
+            start = int(p * window_size_ms)
+            stop  = int(start + window_size_ms)
 
-        for i in range(len(sl)):
-            composite_audio.append( sl[i] )
+            if start > 0:
+                start = start - int(window_size_ms * (1.0 / loop_count))
+                stop  = stop  - int(window_size_ms * (1.0 / loop_count))
 
-        if write_slice:
-            out = wave.open(out_dir + "/" + str(p) + ".wav", "w")
-            out.setparams(( chan_count, samp_width, frame_rate, window_size_ms, comp_type, comp_name ))
-            out.writeframes(sl)
+            sl = slice(w, frame_rate, start, stop)
 
-    out = wave.open("output.wav", "w")
+            out_path = out_dir + "/" + str(p+l) + ".wav"
 
-    out.setparams((
-        chan_count, samp_width, frame_rate,
-        window_size_ms, comp_type, comp_name
-    ))
+            sl_out = wave.open(out_path, "w")
+            sl_out.setparams((
+                chan_count, samp_width, frame_rate,
+                window_size_ms, comp_type, comp_name
+            ))
+            sl_out.writeframes(sl)
+            sl_out.close()
 
-    out.writeframes(composite_audio)
+            path_list.append(out_path)
 
-
-def main(order_path):
-    mix_file(order_path)
+    return path_list
 
 
-main(sys.argv[1])
+def mix_audio(path_list, out_fname="output.wav"):
+    with wave.open(out_fname, 'wb') as wav_out:
+        for wav_path in path_list:
+            with wave.open(wav_path, 'rb') as wav_in:
+                if not wav_out.getnframes():
+                    wav_out.setparams(wav_in.getparams())
+                wav_out.writeframes(wav_in.readframes(wav_in.getnframes()))
+
+
+w_paths = split_wav(sys.argv[1], part_count=PART_COUNT, loop_count=LOOP_COUNT)
+mix_audio(w_paths)
