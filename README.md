@@ -1,4 +1,4 @@
-# Loopy
+# Granuloopy
 
 Semi-granular wav confuser
 
@@ -9,3 +9,8 @@ Semi-granular wav confuser
 ```sh
 $ python3 app.py input.wav
 ```
+
+</br>
+
+## Output Example:
+https://soundcloud.com/fruitnote4/enhanco-confuse_a
