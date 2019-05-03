@@ -36,8 +36,8 @@ def split_wav(input_file_path, out_dir="temp/", part_count=1000, loop_count=6):
     path_list = []
 
     for p in range(part_count):
-        print("Yes: " + str(p))
         for l in range(loop_count):
+
             start = int(p * window_size_ms)
             stop  = int(start + window_size_ms)
 
@@ -47,13 +47,14 @@ def split_wav(input_file_path, out_dir="temp/", part_count=1000, loop_count=6):
 
             sl = w_segment(w, frame_rate, start, stop)
 
-            out_path = out_dir + "/" + str(p+l) + ".wav"
+            out_path = out_dir + str(p+l) + ".wav"
+            print("Yes: " + out_path)
 
             sl_out = wave.open(out_path, "w")
             sl_out.setparams((
-                chan_count, samp_width, frame_rate,
-                window_size_ms, comp_type, comp_name
+                chan_count, samp_width, frame_rate, window_size_ms, comp_type, comp_name
             ))
+
             sl_out.writeframes(sl)
             sl_out.close()
 
