@@ -4,12 +4,12 @@ import wave
 import array
 import struct
 
-PART_COUNT = 1000
-LOOP_COUNT = 6
+PART_COUNT = 4000
+LOOP_COUNT = 32
 
 
-def slice(infile, frame_rate, start_ms, end_ms):
-    fpms   = int(frame_rate / 1000) # frames per ms
+def w_segment(infile, frame_rate, start_ms, end_ms):
+    fpms   = int(frame_rate / 1000)
     length = int((end_ms - start_ms) * fpms)
     start_index = int(start_ms * fpms)
 
@@ -20,8 +20,8 @@ def slice(infile, frame_rate, start_ms, end_ms):
     return infile.readframes(length)
 
 
-def split_wav(order_path, out_dir="temp/", part_count=1000, loop_count=6):
-    w = wave.open(order_path, 'r')
+def split_wav(input_file_path, out_dir="temp/", part_count=1000, loop_count=6):
+    w = wave.open(input_file_path, 'r')
 
     frame_count = w.getnframes()
     frame_rate  = w.getframerate()
@@ -45,7 +45,7 @@ def split_wav(order_path, out_dir="temp/", part_count=1000, loop_count=6):
                 start = start - int(window_size_ms * (1.0 / loop_count))
                 stop  = stop  - int(window_size_ms * (1.0 / loop_count))
 
-            sl = slice(w, frame_rate, start, stop)
+            sl = w_segment(w, frame_rate, start, stop)
 
             out_path = out_dir + "/" + str(p+l) + ".wav"
 
