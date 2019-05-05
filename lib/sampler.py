@@ -15,12 +15,12 @@ def cut_segment(infile, fpms, length, start_ms, end_ms):
 def split_wav(input_file_path, out_dir="temp/", part_count=1000, loop_count=8, grain_count=4):
     w = wave.open(input_file_path, 'r')
 
-    frame_count   = w.getnframes()
-    frame_rate    = w.getframerate()
-    chan_count    = w.getnchannels()
-    comp_type     = w.getcomptype()
-    comp_name     = w.getcompname()
-    samp_width    = w.getsampwidth()
+    frame_count    = w.getnframes()
+    frame_rate     = w.getframerate()
+    chan_count     = w.getnchannels()
+    comp_type      = w.getcomptype()
+    comp_name      = w.getcompname()
+    samp_width     = w.getsampwidth()
 
     window_size_fr = int(frame_count / part_count)
     window_size_ms = int((window_size_fr / frame_rate) * 1000)
@@ -35,9 +35,9 @@ def split_wav(input_file_path, out_dir="temp/", part_count=1000, loop_count=8, g
 
         print(str(p) + " / " + str(part_count))
 
-        for l in range(loop_count):
-            for g in range(grain_count):
-                g_offset = ((window_size_ms / loop_count) * (g+1))
+        for g in range(grain_count):
+            for l in range(loop_count):
+                g_offset = ((window_size_ms / loop_count) * (g))
 
                 if start > 0 and int(stop  + g_offset) < file_len_ms:
                     start = int(start + g_offset)
