@@ -13,4 +13,4 @@ $ python3 app.py input.wav
 </br>
 
 ## Output Example:
-https://soundcloud.com/fruitnote4/granuloopy-400032
+https://soundcloud.com/fruitnote4/granulo-py-200162
