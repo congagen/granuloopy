@@ -2,75 +2,40 @@ import os
 import sys
 import wave
 import array
-import struct
 
-PART_COUNT = 4000
-LOOP_COUNT = 32
-
-
-def w_segment(infile, frame_rate, start_ms, end_ms):
-    fpms   = int(frame_rate / 1000)
-    length = int((end_ms - start_ms) * fpms)
-    start_index = int(start_ms * fpms)
-
-    infile.rewind()
-    anchor = infile.tell()
-    infile.setpos(anchor + start_index)
-
-    return infile.readframes(length)
+from lib import sampler
+from lib import mixer
 
 
-def split_wav(input_file_path, out_dir="temp/", part_count=1000, loop_count=6):
-    w = wave.open(input_file_path, 'r')
+PART_COUNT = 4000 if len(sys.argv) < 3 else int(sys.argv[2])
+LOOP_COUNT = 32 if len(sys.argv) < 4 else int(sys.argv[3])
+LAYERS     = 3
 
-    frame_count = w.getnframes()
-    frame_rate  = w.getframerate()
-    chan_count  = w.getnchannels()
-    comp_type   = w.getcomptype()
-    comp_name   = w.getcompname()
-    samp_width  = w.getsampwidth()
-
-    window_size_fr = int(frame_count / part_count)
-    window_size_ms = int((window_size_fr / frame_rate) * 1000)
-
-    path_list = []
-
-    for p in range(part_count):
-        for l in range(loop_count):
-
-            start = int(p * window_size_ms)
-            stop  = int(start + window_size_ms)
-
-            if start > 0:
-                start = start - int(window_size_ms * (1.0 / loop_count))
-                stop  = stop  - int(window_size_ms * (1.0 / loop_count))
-
-            sl = w_segment(w, frame_rate, start, stop)
-
-            out_path = out_dir + str(p+l) + ".wav"
-            print("Yes: " + out_path)
-
-            sl_out = wave.open(out_path, "w")
-            sl_out.setparams((
-                chan_count, samp_width, frame_rate, window_size_ms, comp_type, comp_name
-            ))
-
-            sl_out.writeframes(sl)
-            sl_out.close()
-
-            path_list.append(out_path)
-
-    return path_list
+TEMP_DIR   = "temp"
+OUTPUT_DIR = "output"
+OUTPUT_FNA = "output.wav"
 
 
-def mix_audio(path_list, out_fname="output.wav"):
-    with wave.open(out_fname, 'wb') as wav_out:
-        for wav_path in path_list:
-            with wave.open(wav_path, 'rb') as wav_in:
-                if not wav_out.getnframes():
-                    wav_out.setparams(wav_in.getparams())
-                wav_out.writeframes(wav_in.readframes(wav_in.getnframes()))
+def main(input_paths):
+    if not os.path.isdir(TEMP_DIR):
+        os.mkdir(TEMP_DIR)
+
+    if not os.path.isdir(OUTPUT_DIR):
+        os.mkdir(OUTPUT_DIR)
+
+    abs_path_temp = os.path.abspath(TEMP_DIR)
+    abs_path_oput = os.path.abspath(OUTPUT_DIR)
+
+    for p in input_paths:
+
+        w_paths = sampler.split_wav(
+            p, abs_path_temp,
+            part_count=PART_COUNT,
+            loop_count=LOOP_COUNT
+        )
+
+        mixer.basic_mix(w_paths, abs_path_oput + "/" + OUTPUT_FNA)
 
 
-w_paths = split_wav(sys.argv[1], part_count=PART_COUNT, loop_count=LOOP_COUNT)
-mix_audio(w_paths)
+if __name__ == "__main__":
+    main([sys.argv[1]])
