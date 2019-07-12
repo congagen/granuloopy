@@ -1,6 +1,6 @@
 # Granuloopy
 
-## Example Usage:
+## Usage:
 
 ```sh
 $ python3 app.py input.wav
