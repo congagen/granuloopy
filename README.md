@@ -1,9 +1,5 @@
 # Granuloopy
 
-Semi-granular wav confuser
-
-</br>
-
 ## Example Usage:
 
 ```sh
