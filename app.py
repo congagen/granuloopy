@@ -6,10 +6,11 @@ import array
 from lib import sampler
 from lib import mixer
 
+
 SLICE_COUNT = 200 if len(sys.argv) < 3 else int(sys.argv[2])
 LOOP_COUNT  = 16  if len(sys.argv) < 4 else int(sys.argv[3])
-GRAIN_COUNT = 2   if len(sys.argv) < 5 else int(sys.argv[4])
-LAYERS      = 3
+GRAIN_COUNT = 4   if len(sys.argv) < 5 else int(sys.argv[4])
+LAYERS      = 1
 
 TEMP_DIR    = "temp"
 OUTPUT_DIR  = "output"
@@ -28,14 +29,18 @@ def main(input_paths):
 
     for i in range(len(input_paths)):
 
-        w_paths = sampler.split_wav(
+        data_slices = sampler.split_wav_memory(
             input_paths[i], abs_path_temp,
-            part_count=SLICE_COUNT,
-            loop_count=LOOP_COUNT,
-            grain_count=GRAIN_COUNT
+            part_count  = SLICE_COUNT,
+            loop_count  = LOOP_COUNT,
+            grain_count = GRAIN_COUNT
         )
 
-        mixer.basic_mix(w_paths, abs_path_oput + "/" + str(i) +"_"+ OUTPUT_FNA)
+        mixer.basic_mix_memory(
+            data_slices,
+            input_paths[0],
+            abs_path_oput + "/" + str(i) +"_"+ OUTPUT_FNA
+        )
 
 
 if __name__ == "__main__":
