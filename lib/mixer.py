@@ -12,6 +12,7 @@ def basic_mix_files(path_list, out_path="output.wav"):
                 wav_out.writeframes(wav_in.readframes(wav_in.getnframes()))
 
 
+
 def basic_mix_memory(data_list, template_wav, out_path="output.wav"):
     with wave.open(template_wav, 'rb') as template:
 

@@ -29,7 +29,7 @@ def main(input_paths):
 
     for i in range(len(input_paths)):
 
-        data_slices = sampler.split_wav_memory(
+        d_slices = sampler.split_wav_memory(
             input_paths[i], abs_path_temp,
             part_count  = SLICE_COUNT,
             loop_count  = LOOP_COUNT,
@@ -37,7 +37,7 @@ def main(input_paths):
         )
 
         mixer.basic_mix_memory(
-            data_slices,
+            d_slices,
             input_paths[0],
             abs_path_oput + "/" + str(i) +"_"+ OUTPUT_FNA
         )
