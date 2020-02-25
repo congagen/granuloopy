@@ -7,9 +7,9 @@ from lib import sampler
 from lib import mixer
 
 
-SLICE_COUNT = 200 if len(sys.argv) < 3 else int(sys.argv[2])
-LOOP_COUNT  = 16  if len(sys.argv) < 4 else int(sys.argv[3])
-GRAIN_COUNT = 4   if len(sys.argv) < 5 else int(sys.argv[4])
+SLICE_COUNT = 400 if len(sys.argv) < 3 else int(sys.argv[2])
+LOOP_COUNT  = 1  if len(sys.argv) < 4 else int(sys.argv[3])
+GRAIN_COUNT = 8   if len(sys.argv) < 5 else int(sys.argv[4])
 LAYERS      = 1
 
 TEMP_DIR    = "temp"
