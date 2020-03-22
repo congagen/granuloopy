@@ -1,4 +1,6 @@
 import wave
+import aifc
+import random
 
 
 def cut_segment(infile, fpms, length, start_ms, end_ms):
@@ -12,7 +14,7 @@ def cut_segment(infile, fpms, length, start_ms, end_ms):
     return infile.readframes(length)
 
 
-def split_wav_memory(input_file_path, out_dir="temp/", part_count=1000, loop_count=8, grain_count=4):
+def split_wav_memory_a(input_file_path, out_dir="temp/", loop=8, window_size_ms=200, step_size_ms=50):
     w = wave.open(input_file_path, 'r')
     data_slices = []
 
@@ -23,39 +25,31 @@ def split_wav_memory(input_file_path, out_dir="temp/", part_count=1000, loop_cou
     comp_name      = w.getcompname()
     samp_width     = w.getsampwidth()
 
-    window_size_fr = int(frame_count / part_count)
-    window_size_ms = int((window_size_fr / frame_rate) * 1000)
     file_len_ms    = int((frame_count / frame_rate) * 1000)
+    part_count     = file_len_ms / window_size_ms
     fr_per_sec     = int(frame_rate / 1000)
 
-    path_list = []
+    step_count = int(file_len_ms / step_size_ms)
 
-    for p in range(part_count):
-        start = int(window_size_ms * p)
-        stop  = int(start + window_size_ms)
+    for s in range(step_count):
+        start = int(step_size_ms * s)
+        stop = int(start + window_size_ms)
 
-        print(str(p) + " / " + str(part_count))
-
-        for g in range(grain_count):
-            for l in range(loop_count):
-                g_offset = ((window_size_ms / loop_count) * (g))
-
-                if start > 0 and int(stop  + g_offset) < file_len_ms:
-                    start = int(start + g_offset)
-                    stop  = int(stop  + g_offset)
+        if stop < file_len_ms:
+            for i_l in range(loop):
+                print("Splitting... " + random.choice(["I", "O"]) )
 
                 length = int((stop - start) * fr_per_sec)
-
                 sl = cut_segment(w, fr_per_sec, length, start, stop)
-
                 data_slices.append(sl)
 
     return data_slices
 
 
 
-def split_wav_files(input_file_path, out_dir="temp/", part_count=1000, loop_count=8, grain_count=4):
+def split_wav_memory_b(input_file_path, out_dir="temp/", loop=8, grain_count=100):
     w = wave.open(input_file_path, 'r')
+    data_slices = []
 
     frame_count    = w.getnframes()
     frame_rate     = w.getframerate()
@@ -64,42 +58,37 @@ def split_wav_files(input_file_path, out_dir="temp/", part_count=1000, loop_coun
     comp_name      = w.getcompname()
     samp_width     = w.getsampwidth()
 
-    window_size_fr = int(frame_count / part_count)
+    window_size_fr = int(frame_count / grain_count)
     window_size_ms = int((window_size_fr / frame_rate) * 1000)
     file_len_ms    = int((frame_count / frame_rate) * 1000)
     fr_per_sec     = int(frame_rate / 1000)
 
     path_list = []
 
-    for p in range(part_count):
-        start = int(window_size_ms * p)
-        stop  = int(start + window_size_ms)
+#    for p in range(part_count):
 
-        print(str(p) + " / " + str(part_count))
+    for g in range(grain_count):
+        start = int(window_size_ms * g)
+        stop = int(start + window_size_ms)
+        #g_offset = ((window_size_ms / grain_count) * g)
 
-        for g in range(grain_count):
-            for l in range(loop_count):
-                g_offset = ((window_size_ms / loop_count) * (g))
+        for i_l in range(loop):
+            print("Splitting... " + random.choice(["I", "O"]) )
 
-                if start > 0 and int(stop  + g_offset) < file_len_ms:
-                    start = int(start + g_offset)
-                    stop  = int(stop  + g_offset)
+            #if start > 0 and int(stop  + g_offset) < file_len_ms:
+            #    start = int(start + g_offset)
+            #    stop  = int(stop  + g_offset)
 
-                length = int((stop - start) * fr_per_sec)
+            l_offset = ((window_size_ms / loop) * i_l)
 
-                sl = cut_segment(w, fr_per_sec, length, start, stop)
+            #if start > 0 and int(stop  + l_offset) < file_len_ms:
+            #    start = int(start + l_offset)
+            #    stop  = int(stop  + l_offset)
 
-                out_path = out_dir + "/" + str(p) + "_" + str(l) + "_" + str(g) + ".wav"
+            length = int((stop - start) * fr_per_sec)
+            sl = cut_segment(w, fr_per_sec, length, start, stop)
+            data_slices.append(sl)
 
-                sl_out = wave.open(out_path, "w")
-                sl_out.setparams((
-                    chan_count, samp_width, frame_rate,
-                    window_size_ms, comp_type, comp_name
-                ))
+    return data_slices
 
-                sl_out.writeframes(sl)
-                sl_out.close()
 
-                path_list.append(out_path)
-
-    return path_list

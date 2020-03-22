@@ -1,16 +1,12 @@
-# Granuloopy
-
-🔊⇨ 🎊
+# granuloopy | 🔊⇨ 🎊
 
 </br>
 
-## Usage:
+### Usage:
 
 ```sh
-$ python3 app.py input.wav
+$ python3 app.py input_a.wav
 ```
 
 </br>
 
-## Output Example:
-https://soundcloud.com/fruitnote4/granulo-py-200162
