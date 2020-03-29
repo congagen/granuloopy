@@ -1,64 +1,79 @@
 import random
 import wave
-import aifc
+import array
+import math
+import numpy as np
 
 
-def basic_mix_wav_files(path_list, out_path="output.wav"):
-    with wave.open(out_path, 'wb') as wav_out:
-        for wav_path in path_list:
-            print("Mixing: " + str(wav_path))
-            with wave.open(wav_path, 'rb') as wav_in:
-                if not wav_out.getnframes():
-                    wav_out.setparams(wav_in.getparams())
-                wav_out.writeframes(wav_in.readframes(wav_in.getnframes()))
+def write_audio(file_path, audio_data, frame_count=0, num_chan=2, s_rate=44100):
+    n_chan = max(min(num_chan, 1), 2)
+    frame_count = len(audio_data) if frame_count == 0 else frame_count
+
+    f = wave.open(file_path, 'w')
+    f.setparams((n_chan, 2, s_rate, frame_count, "NONE", "Uncompressed"))
+    f.writeframes(audio_data.tobytes())
+    f.close()
 
 
-def basic_mix_memory_wav(data_list, template_wav, out_path="output.wav"):
+def mix_slice_list(data_list, template_wav, out_path="output.wav"):
     with wave.open(template_wav, 'rb') as template:
-
         with wave.open(out_path, 'wb') as wav_out:
             for i in range(len(data_list)):
-                print("Writing: " + str(i) + " / " + str(len(data_list)))
                 data_slice = data_list[i]
+                print("Writing: " + str(i) + " / " + str(len(data_list)))
                 if not wav_out.getnframes():
                     wav_out.setparams(template.getparams())
                 wav_out.writeframes(data_slice)
 
 
-def basic_mix_memory_aif(data_list, template_wav, out_path="output.wav"):
-    with aifc.open(template_wav, 'rb') as template:
-        framerate     = template.getframerate()
-        nchannels     = template.getnchannels()
-        comptype      = template.getcomptype()
-        compname      = template.getcompname()
-        sampwidth     = template.getsampwidth()
+def conform_length(track_frames, track_length, frame_rate=44100):
+    fr = []
+    target_frame_count = int(frame_rate * (track_length * 60))
 
-        with aifc.open(out_path, 'wb') as aif_out:
-            for i in range(len(data_list)):
-                print("Writing: " + str(i) + " / " + str(len(data_list)))
-                data_slice = data_list[i]
-                if not aif_out.getnframes():
-                    aif_out.setparams(
-                        (nchannels, sampwidth, framerate,
-                        len(data_list), b'NONE', compname)
-                    )
-                aif_out.writeframes(data_slice)
-                #aif_out.writeframes(str(ord(str(data_slice)[0])).encode())
+    if len(track_frames) < target_frame_count:
+        while len(fr) < target_frame_count:
+            for f in track_frames:
+                fr.append(f)
+    else:
+        fr = track_frames[:target_frame_count]
+
+    return fr
 
 
+def mix_layers(input_paths, track_length, o_path, max_amplitude=30000):
+    print("Mixing layers...")
+    mixed_audio_data = array.array('h')
+    layer_frames = []
+    mix = []
 
-def mix_random(path_list, length=0, out_path="output.wav"):
-    with wave.open(out_path, 'wb') as wav_out:
+    w = wave.open(input_paths[0], 'rb')
+    frame_count    = w.getnframes()
+    frame_rate     = w.getframerate()
+    chan_count     = w.getnchannels()
+    comp_type      = w.getcomptype()
+    comp_name      = w.getcompname()
+    samp_width     = w.getsampwidth()
+    w_frames       = w.readframes(frame_count)
 
-        if length == 0:
-            length = len(path_list)
+    waves = [wave.open(fn) for fn in input_paths]
+    frames = [w.readframes(w.getnframes()) for w in waves]
 
-        for i in range(length):
+    layer_count = len(frames)
 
-            r_path = random.choice(path_list)
+    samples = [np.frombuffer(f, dtype='<i2') for f in frames]
+    samples = [samp.astype(np.float64) for samp in samples]
+    n = min(map(len, samples))
 
-            print("Mixing: " + str(wav_path))
-            with wave.open(r_path, 'rb') as wav_in:
-                if not wav_out.getnframes():
-                    wav_out.setparams(wav_in.getparams())
-                wav_out.writeframes(wav_in.readframes(wav_in.getnframes()))
+    mix = samples[0][:n]
+    mix = np.true_divide(mix, layer_count)
+
+    for s in range(1, len(samples)):
+        m = samples[s][:n]
+        m = np.true_divide(m, layer_count)
+        mix += m
+        #mix += [(s / layer_count) for s in samples[s][:n]]
+
+    mix_wav = wave.open(o_path, 'w')
+    mix_wav.setparams(w.getparams())
+    mix_wav.writeframes(mix.astype('<i2').tobytes())
+    mix_wav.close()

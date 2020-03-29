@@ -1,55 +1,80 @@
 import os
 import sys
-import wave
-import array
+import json
+import time
 
 from lib import sampler
 from lib import mixer
 
-LOOP_COUNT    = 1# if len(sys.argv) < 5 else int(sys.argv[4])
-GRAIN_COUNT   = 400# if len(sys.argv) < 6 else int(sys.argv[5])
 
-WND_SIZE_MS   = 800# if len(sys.argv) < 7 else int(sys.argv[6])
-STEP_SIZE_MS  = 1# if len(sys.argv) < 8 else int(sys.argv[7])
-
-TEMP_DIR    = "temp"
-OUTPUT_DIR  = "output"
-OUTPUT_FNA  = sys.argv[1] + "_" + str(LOOP_COUNT) + "_" + str(WND_SIZE_MS) + "_" + str(STEP_SIZE_MS) + ".wav"
+TEMP_DIR = "temp"
 
 
-def main(input_paths):
+def main(spec_path):
+    with open(spec_path) as data:
+        spec = json.load(data)
+
+    INPUT_PATHS   = spec["input_paths"]
+    OUTPUT_DIR    = spec["output_dir"]
+    PRJ_DIR = OUTPUT_DIR+"/"+str(time.time())
+
+    LAYER_COUNT   = len(spec["layers"].keys())
+    SONG_DUR      = spec["song_duration"]
+
     if not os.path.isdir(TEMP_DIR):
         os.mkdir(TEMP_DIR)
 
     if not os.path.isdir(OUTPUT_DIR):
         os.mkdir(OUTPUT_DIR)
 
-    abs_path_temp = os.path.abspath(TEMP_DIR)
-    abs_path_oput = os.path.abspath(OUTPUT_DIR)
+    if not os.path.isdir(PRJ_DIR):
+        os.mkdir(PRJ_DIR)
 
-    for i in range(len(input_paths)):
+    abs_path_oput = os.path.abspath(PRJ_DIR)
 
-        d_slices = sampler.split_wav_memory_a(
-            input_paths[i],
-            abs_path_temp,
-            loop=LOOP_COUNT,
-            window_size_ms=WND_SIZE_MS,
-            step_size_ms=STEP_SIZE_MS
-        )
+    for i in range(len(INPUT_PATHS)):
+        rendered_layers = []
 
-        # d_slices = sampler.split_wav_memory(
-        #     input_paths[i],
-        #     abs_path_temp,
-        #     loop=LOOP_COUNT,
-        #     grain_count=GRAIN_COUNT
-        # )
+        for layer in spec["layers"].keys():
+            layer_spec = spec["layers"][layer]
 
-        mixer.basic_mix_memory_wav(
-            d_slices,
-            input_paths[i],
-            abs_path_oput + "/" + str(i) +"_"+ OUTPUT_FNA
-        )
+            SAMPLE_OFFSET = layer_spec["sample_offset_ms"]
+            SAMPLE_SIZE   = layer_spec["sample_size_ms"]
+            LOOP_COUNT    = layer_spec["loop_count"]
+            WND_SIZE_MS   = layer_spec["window_size_ms"]
+            STEP_SIZE_MS  = layer_spec["step_size_ms"]
+
+            OUTPUT_FNA = str() + INPUT_PATHS[i] + "_W" + str(WND_SIZE_MS) + "_LO" + str(LOOP_COUNT) + "_S" + str(STEP_SIZE_MS)
+
+            audio_data = sampler.split_wav_memory(
+                INPUT_PATHS[i],
+                song_l=SONG_DUR,
+                sample_off=SAMPLE_OFFSET,
+                sample_size=SAMPLE_SIZE,
+                loop=LOOP_COUNT,
+                window_size_ms=WND_SIZE_MS,
+                step_size_ms=STEP_SIZE_MS
+            )
+
+            comp_opath_a = abs_path_oput + "/" + str(i) + "_" + OUTPUT_FNA + "_LAYER" + str(layer) + ".wav"
+
+            mixer.mix_slice_list(
+                audio_data,
+                INPUT_PATHS[i],
+                comp_opath_a
+            )
+
+            rendered_layers.append(comp_opath_a)
+
+        lcomp_o_path = abs_path_oput + "/" + str(i) + "_" + OUTPUT_FNA + "_COMP" + str(LAYER_COUNT) + ".wav"
+
+        if spec["mix_layers"]:
+            composite = mixer.mix_layers(
+                rendered_layers,
+                SONG_DUR,
+                lcomp_o_path
+            )
 
 
 if __name__ == "__main__":
-    main([sys.argv[1]])
+    main(sys.argv[1])

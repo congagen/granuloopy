@@ -1,0 +1,56 @@
+{
+
+  "input_paths": ["input.wav"],
+  "output_dir": "output",
+  "mix_layers": true,
+  "song_duration": 10,
+
+  "layers": {
+    "1": {
+      "sample_offset_ms": 0,
+      "sample_size_ms": 10000,
+
+      "loop_count": 1,
+      "window_size_ms": 500,
+      "step_size_ms": 2
+    },
+
+    "2": {
+      "sample_offset_ms": 500,
+      "sample_size_ms": 10000,
+
+      "loop_count": 1,
+      "window_size_ms": 750,
+      "step_size_ms": 3
+    },
+
+    "3": {
+      "sample_offset_ms": 1000,
+      "sample_size_ms": 10000,
+
+      "loop_count": 1,
+      "window_size_ms": 250,
+      "step_size_ms": 4
+    },
+
+    "4": {
+      "sample_offset_ms": 0,
+      "sample_size_ms": 10000,
+
+      "loop_count": 1,
+      "window_size_ms": 100,
+      "step_size_ms": 20
+    },
+
+    "5": {
+      "sample_offset_ms": 0,
+      "sample_size_ms": 10000,
+
+      "loop_count": 1,
+      "window_size_ms": 25,
+      "step_size_ms": 25
+    }
+
+  }
+
+}

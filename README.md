@@ -5,5 +5,5 @@
 ### Usage:
 
 ```sh
-$ python3 app.py input_a.wav
+$ python3 app.py examples/multi_layer.json
 ```
