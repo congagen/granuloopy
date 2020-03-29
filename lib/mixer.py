@@ -26,26 +26,13 @@ def mix_slice_list(data_list, template_wav, out_path="output.wav"):
                 wav_out.writeframes(data_slice)
 
 
-def conform_length(track_frames, track_length, frame_rate=44100):
-    fr = []
-    target_frame_count = int(frame_rate * (track_length * 60))
-
-    if len(track_frames) < target_frame_count:
-        while len(fr) < target_frame_count:
-            for f in track_frames:
-                fr.append(f)
-    else:
-        fr = track_frames[:target_frame_count]
-
-    return fr
-
-
-def mix_layers(input_paths, track_length, o_path, max_amplitude=30000):
+def mix_layers(input_paths, o_path, max_amplitude=30000):
     print("Mixing layers...")
     mixed_audio_data = array.array('h')
     layer_frames = []
     mix = []
 
+    print(o_path)
     w = wave.open(input_paths[0], 'rb')
     frame_count    = w.getnframes()
     frame_rate     = w.getframerate()
