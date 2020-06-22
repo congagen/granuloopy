@@ -1,19 +1,21 @@
 {
 
-  "input_paths": ["input.wav"],
-  "output_dir": "output",
-  "mix_layers": false,
-  "song_duration": 10,
+    "project_name": "single",
+    "project_type": "basic",
 
-  "layers": {
-    "1": {
-      "sample_offset_ms": 1000,
-      "sample_size_ms": 30000,
+    "output_dir": "output",
+    "mix_layers": false,
+    "song_duration": 10,
 
-      "loop_count": 1,
-      "window_size_ms": 700,
-      "step_size_ms": 1
+    "layers": {
+        "1": {
+            "input_path": "input/00.wav",
+            "sample_offset_ms": 1000,
+            "sample_size_ms": 30000,
+            "loop_count": 1,
+            "window_size_ms": 700,
+            "step_size_ms": 1
+        }
     }
-  }
 
 }

@@ -4,7 +4,6 @@ import array
 import math
 import numpy as np
 
-
 def write_audio(file_path, audio_data, frame_count=0, num_chan=2, s_rate=44100):
     n_chan = max(min(num_chan, 1), 2)
     frame_count = len(audio_data) if frame_count == 0 else frame_count
@@ -15,14 +14,27 @@ def write_audio(file_path, audio_data, frame_count=0, num_chan=2, s_rate=44100):
     f.close()
 
 
+def write_audio_bytes(file_path, audio_data, frame_count=0, num_chan=2, s_rate=44100):
+    n_chan = max(min(num_chan, 1), 2)
+    frame_count = len(audio_data) if frame_count == 0 else frame_count
+
+    f = wave.open(file_path, 'w')
+    f.setparams((n_chan, 2, s_rate, frame_count, "NONE", "Uncompressed"))
+    f.writeframes(audio_data)
+    f.close()
+
+
+
 def mix_slice_list(data_list, template_wav, out_path="output.wav"):
     with wave.open(template_wav, 'rb') as template:
         with wave.open(out_path, 'wb') as wav_out:
             for i in range(len(data_list)):
                 data_slice = data_list[i]
-                print("Writing: " + str(i) + " / " + str(len(data_list)))
+                #print("Writing: " + str(i) + " / " + str(len(data_list)))
+
                 if not wav_out.getnframes():
                     wav_out.setparams(template.getparams())
+
                 wav_out.writeframes(data_slice)
 
 
