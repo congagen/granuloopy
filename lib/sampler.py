@@ -104,8 +104,9 @@ def cut_samples(input_file_path, sample_size_ms=2000, step_ratio=1):
     return data_slices
 
 
-def slice_input(prj_spec):
+def prep_input(prj_spec):
     spec = prj_spec.copy()
+    slices = []
     orders = []
 
     for k in spec["prep"].keys():
@@ -134,6 +135,7 @@ def slice_input(prj_spec):
         for s in range(len(data_slice_list)):
             op = o_dir + "/" + str(k) +"_"+ str(c) + ".wav"
             c += 1
+            slices.append(op)
 
             mixer.write_audio_bytes(op, data_slice_list[s])
             l_spec = copy.deepcopy(spec)
@@ -142,5 +144,10 @@ def slice_input(prj_spec):
                 l_spec["layers"][l]["input_path"] = op
 
             orders.append(l_spec)
+
+        if spec["randomize_layers"]:
+            for o in range(len(orders)):
+                for l in orders[o]["layers"].keys():
+                    orders[o]["layers"][l]["input_path"] = random.choice(slices)
 
     return orders

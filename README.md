@@ -1,4 +1,4 @@
-# granuloopy | 💿 ⇨ 🎊
+# granuloopy | 🔊⇨ 🎊
 
 </br>
 

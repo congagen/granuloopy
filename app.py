@@ -75,7 +75,8 @@ if __name__ == "__main__":
         spec = json.load(data)
 
     if "prep" in spec.keys():
-        orders = sampler.slice_input(spec)
+        orders = sampler.prep_input(spec)
+        # pprint.pprint(orders)
         for o in orders:
             main(o)
     else:
