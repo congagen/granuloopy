@@ -104,14 +104,11 @@ def cut_samples(input_file_path, sample_size_ms=2000, step_ratio=1):
     return data_slices
 
 
-def prep_input(prj_spec):
-    spec = prj_spec.copy()
+def prep_input(spec):
     slices = []
     orders = []
 
     for k in spec["prep"].keys():
-        spec = spec.copy()
-
         t_dir = spec["project_name"] + "_" + str(int(time.time()))
 
         temp_dir = spec["prep"][k]["prep_dir"]
