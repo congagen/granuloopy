@@ -8,60 +8,24 @@
     "song_duration": 10,
 
     "layers": {
+
         "1": {
             "input_path": "input/00.wav",
-            "sample_offset_ms": 0,
-            "sample_size_ms": 20000,
-            "window_size_ms": 500,
+            "sample_offset_ms": 1000,
+            "sample_size_ms": 30000,
             "loop_count": 1,
-            "step_size_ms": 2
+            "window_size_ms": 700,
+            "step_size_ms": 1
         },
 
         "2": {
             "input_path": "input/00.wav",
-            "sample_offset_ms": 500,
-            "sample_size_ms": 20000,
-            "loop_count": 1,
-            "window_size_ms": 750,
-            "step_size_ms": 3
-        },
-
-        "3": {
-            "input_path": "input/00.wav",
             "sample_offset_ms": 1000,
-            "sample_size_ms": 20000,
+            "sample_size_ms": 30000,
             "loop_count": 1,
-            "window_size_ms": 1000,
-            "step_size_ms": 200
-        },
-
-        "4": {
-            "input_path": "input/00.wav",
-            "sample_offset_ms": 1000,
-            "sample_size_ms": 20000,
-            "loop_count": 1,
-            "window_size_ms": 250,
-            "step_size_ms": 4
-        },
-
-        "5": {
-            "input_path": "input/00.wav",
-            "sample_offset_ms": 0,
-            "sample_size_ms": 20000,
-            "loop_count": 1,
-            "window_size_ms": 100,
-            "step_size_ms": 520
-        },
-
-        "6": {
-            "input_path": "input/00.wav",
-            "sample_offset_ms": 0,
-            "sample_size_ms": 20000,
-            "loop_count": 1,
-            "window_size_ms": 25,
-            "step_size_ms": 25
+            "window_size_ms": 350,
+            "step_size_ms": 2
         }
-
     }
 
 }

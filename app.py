@@ -2,11 +2,9 @@ import os
 import sys
 import json
 import time
-import pprint
 
 from lib import sampler
 from lib import mixer
-
 
 TEMP_DIR = "temp"
 
@@ -36,6 +34,7 @@ def main(spec):
     abs_path_oput = os.path.abspath(prj_dir)
 
     for layer in spec["layers"].keys():
+        print(layer)
         layer_spec = spec["layers"][layer]
         INPUT_PATH = layer_spec["input_path"]
 
@@ -43,12 +42,12 @@ def main(spec):
 
         layer_data = sampler.split_wav_memory(
             layer_spec["input_path"],
-            song_l=SONG_DUR,
-            sample_off=layer_spec["sample_offset_ms"],
-            sample_size=layer_spec["sample_size_ms"],
-            loop=layer_spec["loop_count"],
-            window_size_ms=layer_spec["window_size_ms"],
-            step_size_ms=layer_spec["step_size_ms"]
+            song_l=int(SONG_DUR),
+            sample_offset=int(layer_spec["sample_offset_ms"]),
+            sample_size=int(layer_spec["sample_size_ms"]),
+            loop=int(layer_spec["loop_count"]),
+            window_size_ms=int(layer_spec["window_size_ms"]),
+            step_size_ms=int(layer_spec["step_size_ms"])
         )
 
         layer_path = abs_path_oput + "/LAYER" + str(layer) + "_" + output_filename + ".wav"
@@ -71,13 +70,17 @@ def main(spec):
 
 
 if __name__ == "__main__":
-    with open(sys.argv[1]) as data:
-        spec = json.load(data)
+    if len(sys.argv) > 1:
+        with open(sys.argv[1]) as data:
+            spec = json.load(data)
 
-    if "prep" in spec.keys():
-        orders = sampler.prep_input(spec)
-        # pprint.pprint(orders)
-        for o in orders:
-            main(o)
+        if "prep" in spec.keys():
+            orders = sampler.prep_input(spec)
+
+            for o in orders:
+                main(o)
+        else:
+            main(spec)
+
     else:
-        main(spec)
+        print("Spec path?!")

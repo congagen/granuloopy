@@ -24,13 +24,12 @@ def write_audio_bytes(file_path, audio_data, frame_count=0, num_chan=2, s_rate=4
     f.close()
 
 
-
 def mix_slice_list(data_list, template_wav, out_path="output.wav"):
     with wave.open(template_wav, 'rb') as template:
         with wave.open(out_path, 'wb') as wav_out:
             for i in range(len(data_list)):
                 data_slice = data_list[i]
-                #print("Writing: " + str(i) + " / " + str(len(data_list)))
+                print("Writing: " + str(i) + " / " + str(len(data_list)))
 
                 if not wav_out.getnframes():
                     wav_out.setparams(template.getparams())

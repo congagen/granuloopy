@@ -31,43 +31,49 @@ def conform_length(track_frames, track_length, frame_rate=44100):
     return fr
 
 
-def split_wav_memory(input_file_path, song_l=0, sample_off=0, sample_size=20000, loop=1, window_size_ms=200, step_size_ms=50):
+def split_wav_memory(input_file_path, song_l=0, sample_offset=0, sample_size=20000, loop=1, window_size_ms=200, step_size_ms=50):
     w = wave.open(input_file_path, 'r')
     data_slices = []
 
-    frame_count    = w.getnframes()
-    frame_rate     = w.getframerate()
-    chan_count     = w.getnchannels()
+    input_frame_count = w.getnframes()
+    input_frame_rate  = w.getframerate()
+    input_file_len_ms = int((input_frame_count / input_frame_rate) * 1000)
+    input_sample_size = sample_size
 
-    song_len_ms = int((song_l * 60) * 1000)
-    file_len_ms = int((frame_count / frame_rate) * 1000) - sample_off
+    output_song_len_ms = int((song_l * 60) * 1000)
 
-    if file_len_ms > sample_size:
-        file_len_ms = sample_size
+    if int(input_file_len_ms) < input_sample_size:
+        print("file_len_ms > input_sample_size")
+        input_sample_size = input_file_len_ms
 
-    if file_len_ms > song_len_ms:
-        file_len_ms = song_len_ms
+    if window_size_ms > input_sample_size:
+        print("file_len_ms > input_sample_size")
+        window_size_ms = input_sample_size
 
-    part_count     = file_len_ms / window_size_ms
-    frames_per_ms  = int(frame_rate / 1000)
-    step_count     = int(file_len_ms / (step_size_ms+1))
+    frames_per_ms  = int(input_frame_rate / 1000)
+    step_count     = int((input_file_len_ms - sample_offset) / int(window_size_ms+step_size_ms))
 
     cur_len_ms = 0
 
-    while cur_len_ms < song_len_ms:
+    while cur_len_ms < output_song_len_ms:
+        print("Splitting: " + str(cur_len_ms) + "/" + str(output_song_len_ms))
         for s in range(step_count):
-            start = sample_off + int(step_size_ms * s)
+            print("Step: " + str(s) + " / " + str(step_count))
+
+            start = sample_offset + int(step_size_ms * s)
             stop = int(start + window_size_ms)
+            #print("Stop " + str(stop) + " - File Len: " + str(file_len_ms))
 
-            if stop < file_len_ms:
+            if stop < input_file_len_ms:
                 for i_l in range(loop):
-                    # print("Splitting... ")
-
                     length = int((stop - start) * frames_per_ms)
                     seg = cut_segment(w, frames_per_ms, length, start, stop)
-                    if cur_len_ms < song_len_ms:
+                    if cur_len_ms < output_song_len_ms:
                         data_slices.append(seg)
                     cur_len_ms += window_size_ms
+            else:
+                print("ERROR")
+                return
 
     return data_slices
 
