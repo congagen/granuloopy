@@ -1,7 +1,7 @@
 {
 
     "project_name": "single",
-    "project_type": "basic",
+    "project_type": "song",
 
     "output_dir": "output",
     "mix_layers": false,
@@ -12,7 +12,7 @@
             "input_path": "input/00.wav",
             "sample_offset_ms": 1000,
             "sample_size_ms": 30000,
-            "loop_count": 1,
+            "loop_count": 0,
             "window_size_ms": 700,
             "step_size_ms": 1
         }

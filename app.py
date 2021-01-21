@@ -52,11 +52,19 @@ def main(spec):
 
         layer_path = abs_path_oput + "/LAYER" + str(layer) + "_" + output_filename + ".wav"
 
-        mixer.mix_slice_list(
-            layer_data,
-            template_wav=INPUT_PATH,
-            out_path=layer_path
-        )
+        if (spec["project_type"] == "loop_ext"):
+            print(spec["project_name"])
+            mixer.extract_slice_loops(
+                layer_data,
+                template_wav=INPUT_PATH,
+                out_path=layer_path
+            )
+        else:
+            mixer.mix_slice_list(
+                layer_data,
+                template_wav=INPUT_PATH,
+                out_path=layer_path
+            )
 
         rendered_layers.append(layer_path)
 
@@ -73,14 +81,10 @@ if __name__ == "__main__":
     if len(sys.argv) > 1:
         with open(sys.argv[1]) as data:
             spec = json.load(data)
-
-        if "prep" in spec.keys():
-            orders = sampler.prep_input(spec)
-
-            for o in orders:
-                main(o)
-        else:
+        main(spec)
+    else:
+        for f in os.listdir("examples"):
+            with open("examples/"+f) as data:
+                spec = json.load(data)
             main(spec)
 
-    else:
-        print("Spec path?!")

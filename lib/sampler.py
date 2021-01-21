@@ -38,7 +38,7 @@ def split_wav_memory(input_file_path, song_l=0, sample_offset=0, sample_size=200
     input_frame_count = w.getnframes()
     input_frame_rate  = w.getframerate()
     input_file_len_ms = int((input_frame_count / input_frame_rate) * 1000)
-    input_sample_size = sample_size
+    input_sample_size = sample_size if sample_size != 0 else input_file_len_ms
 
     output_song_len_ms = int((song_l * 60) * 1000)
 
@@ -54,6 +54,7 @@ def split_wav_memory(input_file_path, song_l=0, sample_offset=0, sample_size=200
     step_count     = int((input_file_len_ms - sample_offset) / int(window_size_ms+step_size_ms))
 
     cur_len_ms = 0
+    loop = 1 if loop == 0 else loop
 
     while cur_len_ms < output_song_len_ms:
         print("Splitting: " + str(cur_len_ms) + "/" + str(output_song_len_ms))

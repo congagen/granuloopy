@@ -1,7 +1,7 @@
 {
 
-    "project_name": "multi_layer",
-    "project_type": "basic",
+    "project_name": "loop_extract",
+    "project_type": "song",
 
     "output_dir": "output",
     "mix_layers": true,
@@ -20,9 +20,9 @@
 
         "2": {
             "input_path": "input/00.wav",
-            "sample_offset_ms": 1000,
+            "sample_offset_ms": 10000,
             "sample_size_ms": 30000,
-            "loop_count": 1,
+            "loop_count": 0,
             "window_size_ms": 350,
             "step_size_ms": 2
         }

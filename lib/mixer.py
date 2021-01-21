@@ -36,6 +36,18 @@ def mix_slice_list(data_list, template_wav, out_path="output.wav"):
 
                 wav_out.writeframes(data_slice)
 
+def extract_slice_loops(data_list, template_wav, out_path="output.wav"):
+    with wave.open(template_wav, 'rb') as template:
+        for i in range(len(data_list)):
+            file_o_path = out_path + "_" + str(i) + ".wav"
+            d = data_list[i]
+            print(file_o_path)
+            with wave.open(file_o_path, 'wb') as wav_out:
+                if not wav_out.getnframes():
+                    wav_out.setparams(template.getparams())
+                wav_out.writeframes(d)
+
+
 
 def mix_layers(input_paths, o_path, max_amplitude=30000):
     print("Mixing layers...")

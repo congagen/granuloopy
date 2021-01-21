@@ -1,0 +1,22 @@
+{
+
+    "project_name": "slice_extract",
+    "project_type": "loop_ext",
+
+    "output_dir": "output",
+    "mix_layers": false,
+    "randomize_layers": false,
+    "song_duration": 5,
+
+    "layers": {
+        "0": {
+            "input_path": "input/00.wav",
+            "sample_offset_ms": 0,
+            "sample_size_ms": 0,
+            "loop_count": 0,
+            "window_size_ms": 512,
+            "step_size_ms": 2048
+        }
+    }
+
+}
