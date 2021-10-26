@@ -1,7 +1,5 @@
 # granuloopy | 🔊⇨ 🎊
 
-</br>
-
 ### Examples:
 
 ```sh
